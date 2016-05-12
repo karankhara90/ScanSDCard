@@ -1,5 +1,8 @@
 package kumar.karan.scancard;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -50,6 +53,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Task
     /*.....................................................*/
     protected MainFragment mMainFragment;
     private static final String TAG_TASK_FRAGMENT = "task_fragment";
+    private Intent notificationIntent;
+    private PendingIntent pendingIntent;
+    private Notification notification;
+    private NotificationManager notificationManager;
      /*....................................................*/
 
     @Override
@@ -84,6 +91,19 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Task
 
                 mListScannedFiles.setVisibility(View.VISIBLE);
                 ringProgressDialog = ProgressDialog.show(MainActivity.this,"Scanning SD card..","===");
+                notificationIntent = new Intent();
+                pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, notificationIntent, 0);
+                notification = new Notification.Builder(MainActivity.this)
+                        .setTicker("Scanning Notification")
+                        .setContentTitle("SD Card Scanning")
+                        .setContentText("Scanning Started")
+                        .setSmallIcon(R.mipmap.ic_launcher)
+                        .setAutoCancel(true)
+                        .setContentIntent(pendingIntent).getNotification();
+
+//                noti.flags = Notification.FLAG_AUTO_CANCEL;
+                notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                notificationManager.notify(0,notification);
 
                 //register BroadcastReceiver ................//
                 IntentFilter intentFilter = new IntentFilter(MainFragment.ACTION_MyIntentService);
@@ -200,6 +220,20 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Task
             mTextGetList.setVisibility(View.GONE);
             mListScannedFiles.setAdapter(adapter);
             ringProgressDialog.dismiss();
+
+            notificationIntent = new Intent();
+            pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, notificationIntent, 0);
+            notification = new Notification.Builder(MainActivity.this)
+                    .setTicker("Scanning Notification")
+                    .setContentTitle("SD CARD Scanning")
+                    .setContentText("Scanning Ended")
+                    .setAutoCancel(true)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentIntent(pendingIntent).getNotification();
+
+            notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            notificationManager.notify(0,notification);
+
         }
     }
 

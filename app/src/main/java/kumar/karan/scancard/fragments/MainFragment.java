@@ -146,6 +146,7 @@ public class MainFragment extends Fragment {
             Log.e("TAG", "files size: " + files.size());
             Log.e("TAG", "dir size: " + dir.size());
 
+
             /****  sending broadcast of arraylist data. We will use broadcast receiver in MainActivity to receive   *****/
             Intent intent2 = new Intent();
             intent2.setAction(ACTION_MyIntentService);
