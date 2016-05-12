@@ -26,27 +26,27 @@
         android:id="@+id/listScannedFiles"
         android:dividerHeight="4dp"
         android:visibility="invisible"
-        android:layout_marginTop="20dp"
+
         android:footerDividersEnabled="true"
         android:headerDividersEnabled="true"
-        android:layout_below="@+id/textGetList"
-        android:layout_alignLeft="@+id/emptyElement"
-        android:layout_alignStart="@+id/emptyElement"
-        android:background="@color/white"
+        android:background="#faf8f8"
+        android:layout_alignTop="@+id/textGetList"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_above="@+id/btnStartScan" />
 
     <Button
         android:layout_width="match_parent"
-        android:layout_height="@dimen/height_60dp"
+        android:layout_height="@dimen/height_50dp"
         android:id="@+id/btnStartScan"
-        android:text="Start Scanning"
+        android:text="Start Scan"
         android:textStyle="bold"
         android:textSize="@dimen/txt_22dp"
         android:textColor="@color/white"
         android:background="@color/blue"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:id="@+id/emptyElement"
