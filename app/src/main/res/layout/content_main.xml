@@ -26,7 +26,7 @@
         android:id="@+id/listScannedFiles"
         android:dividerHeight="4dp"
         android:visibility="invisible"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:footerDividersEnabled="true"
         android:headerDividersEnabled="true"
         android:layout_below="@+id/textGetList"

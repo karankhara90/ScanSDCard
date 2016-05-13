@@ -34,6 +34,9 @@ public class MainFragment extends Fragment {
     public static final String ACTION_MyUpdate = "apps.khara.sdscan.UPDATE";
     public static final String EXTRA_KEY_UPDATE = "EXTRA_UPDATE";
 
+    public static final String EXTRA_OUTPUT_DATA = "OUTPUT_DATA";
+    public static final String ACTION_ShareUpdate = "apps.khara.sdscan.SHARE";
+
     protected static long fileCount=0;
     protected static long totalFileSize=0;
     protected DummyTask dummyTask;
@@ -96,11 +99,12 @@ public class MainFragment extends Fragment {
      */
     public void cancel() {
         if (mRunning) {
-            dummyTask.cancel(false);
+            dummyTask.cancel(true);
             dummyTask = null;
             mRunning = false;
         }
     }
+
 
     /**
      * Returns the current state of the background task.
@@ -160,6 +164,7 @@ public class MainFragment extends Fragment {
             return null;
         }
 
+
         public void scan(File path) {
             for (File f : path.listFiles()) {
                 if (f.isFile()) {
@@ -197,6 +202,8 @@ public class MainFragment extends Fragment {
                 }
             });
 
+            String outputData="";
+
             HashMap<String, Long> sortedMap = new HashMap<String, Long>();
 
             for (Iterator<Map.Entry<String, Long>> it = list.iterator(); it.hasNext(); ) {
@@ -204,7 +211,16 @@ public class MainFragment extends Fragment {
                 sortedMap.put(entry.getKey(), entry.getValue());
                 listFileName.add(entry.getKey());
                 listFileSize.add("Size: " + String.valueOf(entry.getValue() / 1024) + " kb");
+
+                outputData = outputData + "File: " + entry.getKey() + ", Size: "+String.valueOf(entry.getValue() / 1024) + " kb \n";
             }
+            outputData = "Top largest file name and sizes: \n" + outputData;
+            Log.e("TAG","*&&& data: ***"+outputData);
+            Intent broadSendIntent = new Intent();
+            broadSendIntent.setAction(ACTION_ShareUpdate);
+            broadSendIntent.addCategory(Intent.CATEGORY_DEFAULT);
+            broadSendIntent.putExtra(EXTRA_OUTPUT_DATA, outputData);
+            getActivity().sendBroadcast(broadSendIntent);
 
             return sortedMap;
         }

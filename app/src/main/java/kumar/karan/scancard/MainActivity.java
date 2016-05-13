@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Task
 //    private MyBroadcastReceiver_Update myBroadcastReceiver_Update;
     protected MyBroadcastReceiver myBroadcastReceiver = new MyBroadcastReceiver();
     protected MyBroadcastReceiver_Update myBroadcastReceiver_Update = new MyBroadcastReceiver_Update();
+    protected MyBroadcastReceiver_Share myBroadcastReceiver_share = new MyBroadcastReceiver_Share();
 
     ProgressDialog ringProgressDialog;
     protected static int counterBtn=0;
@@ -57,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Task
     private PendingIntent pendingIntent;
     private Notification notification;
     private NotificationManager notificationManager;
+    protected String outputData;
+    protected static String sendOutputData;
      /*....................................................*/
 
     @Override
@@ -64,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Task
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         mTextGetList = (TextView) findViewById(R.id.textGetList);
         mTextAvg = (TextView) findViewById(R.id.textAverage);
         mTextFrequency = (TextView) findViewById(R.id.textFrequency);
@@ -94,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Task
                 notificationIntent = new Intent();
                 pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, notificationIntent, 0);
                 notification = new Notification.Builder(MainActivity.this)
-                        .setTicker("Scanning Notification")
+                        .setTicker("Scanning SD card files")
                         .setContentTitle("SD Card Scanning")
                         .setContentText("Scanning Started")
                         .setSmallIcon(R.mipmap.ic_launcher)
@@ -113,6 +120,11 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Task
                 IntentFilter intentFilter_update = new IntentFilter(MainFragment.ACTION_MyUpdate);
                 intentFilter_update.addCategory(Intent.CATEGORY_DEFAULT);
                 registerReceiver(myBroadcastReceiver_Update, intentFilter_update);
+
+                //register BroadcastReceiver ................//
+                IntentFilter intentFilter_share = new IntentFilter(MainFragment.ACTION_ShareUpdate);
+                intentFilter_share.addCategory(Intent.CATEGORY_DEFAULT);
+                registerReceiver(myBroadcastReceiver_share, intentFilter_share);
                 //..............................................//
 
             }
@@ -140,6 +152,10 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Task
             IntentFilter intentFilter_update = new IntentFilter(MainFragment.ACTION_MyUpdate);
             intentFilter_update.addCategory(Intent.CATEGORY_DEFAULT);
             registerReceiver(myBroadcastReceiver_Update, intentFilter_update);
+
+            IntentFilter intentFilter_share = new IntentFilter(MainFragment.ACTION_ShareUpdate);
+            intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+            registerReceiver(myBroadcastReceiver_share, intentFilter);
             //..............................................//
 
 
@@ -224,9 +240,9 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Task
             notificationIntent = new Intent();
             pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, notificationIntent, 0);
             notification = new Notification.Builder(MainActivity.this)
-                    .setTicker("Scanning Notification")
+                    .setTicker("Scanning is done")
                     .setContentTitle("SD CARD Scanning")
-                    .setContentText("Scanning Ended")
+                    .setContentText("Scanning done")
                     .setAutoCancel(true)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentIntent(pendingIntent).getNotification();
@@ -244,13 +260,28 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Task
             ringProgressDialog.setMessage(update);
         }
     }
+    public class MyBroadcastReceiver_Share extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent){
+            outputData = intent.getStringExtra(MainFragment.EXTRA_OUTPUT_DATA);
+//            Log.e("TAG","**** data: *** "+outputData);
+             sendOutputData = outputData;
+        }
+    }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+//        mMainFragment.cancel();
+        mMainFragment.onDestroy();
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
         //un-register BroadcastReceiver
         unregisterReceiver(myBroadcastReceiver);
         unregisterReceiver(myBroadcastReceiver_Update);
+        unregisterReceiver(myBroadcastReceiver_share);
     }
 
 
@@ -265,12 +296,20 @@ public class MainActivity extends AppCompatActivity implements MainFragment.Task
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id== R.id.action_share && mBtnStartScan.getText().equals("RESCAN SD CARD")){
+            Log.e("TAG","btn text: "+ mBtnStartScan.getText());
+            shareData();
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+    void shareData(){
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        //Log.e("TAG","email data ///"+sendOutputData);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, sendOutputData);
+        startActivity(Intent.createChooser(shareIntent," Share with "));
     }
 
 
